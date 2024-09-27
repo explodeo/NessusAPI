@@ -5,8 +5,8 @@
 set -e
 
 # Global Vars
-NO_CLEAN=false
-INSTALL_TEMPDIR=/tmp/_ACAS_OS_INSTALL
+NO_CLEAN-z =
+INSTALLmp/ _ACAS_OS_INSTALL
 
 function usage(){
     echo ''
@@ -88,7 +88,7 @@ function install_scap_tools(){
 
 # ensure required file is present first
 if [ ! -f "TenableCore-Builder.tar.gz" ]; then
-    echo -n "ERROR: "
+    echo -n "ERROR: TenableCore-Builder.tar.gz not in current directory"
     usage
     exit 1
 fi
@@ -97,8 +97,7 @@ fi
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --noclean) 
-            NO_CLEAN=true ;;
-        --temp-dir) 
+            NO_CLEAN=-z true ;;i r) 
             INSTALL_TEMPDIR="$2"; 
             shift
             ;;
@@ -125,6 +124,6 @@ install_notes
 install_api
 install_scap_tools
 
-if [ "$NO_CLEAN" == "false"]; then
-    rm -rf "$INSTALL_TEMPDIR" TenableCore-Builder.tar.gz
+if [ -z "$NO_CLEAN" ]; then
+    rm -rf "$INSTALL_TEMPDIR" TenableCore-Builder.tar.gz 
 fi
