@@ -5,8 +5,8 @@
 set -e
 
 # Global Vars
-NO_CLEAN-z =
-INSTALLmp/ _ACAS_OS_INSTALL
+NO_CLEAN=
+INSTALL_TEMPDIR=_ACAS_OS_INSTALL
 
 function usage(){
     echo ''
