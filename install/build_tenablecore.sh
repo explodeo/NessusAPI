@@ -97,7 +97,7 @@ fi
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --noclean) 
-            NO_CLEAN=-z true ;;i r) 
+            NO_CLEAN=true ;;
             INSTALL_TEMPDIR="$2"; 
             shift
             ;;
