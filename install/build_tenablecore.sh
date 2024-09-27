@@ -28,14 +28,14 @@ function configure_nessus(){
 
     echo "Creating Nessus User Account"
     # need to wait till nessus is fully up here?
-    nessuscli adduser
+    nessuscli adduser || true
 
     # run ns-conf.sh
-    echo "Reconfiguring Nessus to ACAS. Please Wait"
-    /opt/acas/bin/config-scripts/ns-conf.sh &
-    sleep 30
-    kill -9 $(pgrep ns-conf.sh) 2>/dev/null
-    echo "Done"
+    # echo "Reconfiguring Nessus to ACAS. Please Wait"
+    /opt/acas/bin/config-scripts/ns-conf.sh
+    # sleep 30
+    # kill -9 $(pgrep ns-conf.sh) 2>/dev/null
+    # echo "Done"
 }
 
 function configure_networking(){
@@ -98,7 +98,8 @@ while [[ "$#" -gt 0 ]]; do
     case $1 in
         --noclean) 
             NO_CLEAN=true ;;
-            INSTALL_TEMPDIR="$2"; 
+        --temp-dir)
+            INSTALL_TEMPDIR="$2"
             shift
             ;;
         --help)
@@ -115,6 +116,10 @@ done
 
 mkdir -p "$INSTALL_TEMPDIR"
 
+if ! command -v tar &> /dev/null; then
+   rpm -i tar-1.34-6.el9_4.1.x86_64.rpm
+fi
+
 tar -xzvf TenableCore-Builder.tar.gz -C "$INSTALL_TEMPDIR"
 
 install_rpms
@@ -124,6 +129,8 @@ install_notes
 install_api
 install_scap_tools
 
+echo "Nessus Install Completed"
+
 if [ -z "$NO_CLEAN" ]; then
-    rm -rf "$INSTALL_TEMPDIR" TenableCore-Builder.tar.gz 
+    rm -rf "$INSTALL_TEMPDIR" TenableCore-Builder.tar.gz tar-1.34-6.el9_4.1.x86_64.rpm 
 fi
