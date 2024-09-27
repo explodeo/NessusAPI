@@ -13,6 +13,8 @@
 
 # The final TGZ and install script is outputted into the ./dist folder
 
+find . -type f \( -name "*.sh" -o -name "*.py" \) -exec dos2unix {} +
+
 tar -czvf ./dist/installer/TenableCore-Builder.tar.gz \
     --exclude='*/VM' \
     --exclude='*/example-plugins' \
