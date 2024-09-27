@@ -16,6 +16,10 @@
 
 **/.other
 
+# ignore Nessus Policy files
+**.nessus
+**.xml
+
 # Ignore system-specific notes
 **/Notes
 **/notes
