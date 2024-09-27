@@ -20,7 +20,9 @@ tar -czvf ./dist/installer/TenableCore-Builder.tar.gz \
     --exclude='*/install/python/win' \
     --exclude='*/install/python/win' \
     --exclude='*.exe' \
+    --exclude='*.iso' \
     --exclude='*/install/build_tenablecore.sh' \
-    ./src/NessusAPI ./src/SCAP ./src/TenableCore/NetworkManager ./src/Notes ./install
+    -C src NessusAPI SCAP TenableCore Notes -C .. install
+    # -C ./src/NessusAPI . -C ./src/SCAP . -C ./src/TenableCore/NetworkManager . -C ./src/Notes  . -C ./install .
 
 cp ./install/build_tenablecore.sh ./dist/installer

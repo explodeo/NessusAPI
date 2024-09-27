@@ -1,10 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 # Run this script from within the ACASVM
 # this script should be run in the same directory as the 'TenableCore-Builder.tar.gz' file
 
-# exit on error
 set -e
 
+# Global Vars
+NO_CLEAN=false
 INSTALL_TEMPDIR=/tmp/_ACAS_OS_INSTALL
 
 function usage(){
@@ -16,9 +17,9 @@ function usage(){
 }
 
 function install_rpms(){
-    rpm -i "$INSTALL_TEMPDIR/rpms/CM307352_Nessus-10.7.3-el8.x86_64.rpm"
-    rpm -i "$INSTALL_TEMPDIR/rpms/dialog-1.3-32.20210117.el9.x86_64.rpm"
-    rpm -i "$INSTALL_TEMPDIR/rpms/CM306733_acas_configure-24.03-4.noarch"
+    rpm -i "$INSTALL_TEMPDIR/install/rpms/CM307352_Nessus-10.7.3-el8.x86_64.rpm"
+    rpm -i "$INSTALL_TEMPDIR/install/rpms/dialog-1.3-32.20210117.el9.x86_64.rpm"
+    rpm -i "$INSTALL_TEMPDIR/install/rpms/CM306733_acas_configure-24.03-4.noarch.rpm"
 }
 
 function configure_nessus(){
@@ -26,11 +27,14 @@ function configure_nessus(){
     ln -s /opt/nessus/sbin/nessuscli /usr/sbin/nessuscli
 
     echo "Creating Nessus User Account"
+    # need to wait till nessus is fully up here?
     nessuscli adduser
 
     # run ns-conf.sh
     echo "Reconfiguring Nessus to ACAS. Please Wait"
-    /opt/acas/bin/config-scripts/ns-conf.sh & sleep 60 && kill -9 $(pgrep ns-conf.sh) &
+    /opt/acas/bin/config-scripts/ns-conf.sh &
+    sleep 30
+    kill -9 $(pgrep ns-conf.sh) 2>/dev/null
     echo "Done"
 }
 
@@ -39,12 +43,12 @@ function configure_networking(){
     systemctl disable --now firewalld
 
     # install NetworkManager profiles
-    cp "$INSTALL_TEMPDIR/NetworkManager/*.nmconnection" /etc/NetworkManager/system-connections/
+    cp "$INSTALL_TEMPDIR"/TenableCore/NetworkManager/*.nmconnection /etc/NetworkManager/system-connections/
     chmod 600 /etc/NetworkManager/system-connections/*.nmconnection
     chown root:root /etc/NetworkManager/system-connections/*.nmconnection
     
     # install networkctl
-    cp "$INSTALL_TEMPDIR/NetworkManager/networkctl.sh" /opt
+    cp "$INSTALL_TEMPDIR/TenableCore/NetworkManager/networkctl.sh" /opt
     chmod 755 /opt/networkctl.sh
     systemctl restart NetworkManager
     
@@ -57,19 +61,22 @@ function install_notes(){
 
 function install_api(){
     # install pip packages (includes pyinstaller)
-    pip install --no-index --find-links "$INSTALL_TEMPDIR/install/python/oracle/" -r  "$INSTALL_TEMPDIR/NessusAPI/requirements.txt"
-
+    python -m ensurepip -U
+    pip3 install --no-index --find-links "$INSTALL_TEMPDIR/install/python/oracle/" -r  "$INSTALL_TEMPDIR/NessusAPI/requirements.txt"
+    
     # install nessus-configure src and configs
     mkdir -p /opt/NessusAPI/{bin,src}
-    cp -r "$INSTALL_TEMPDIR/NessusAPI/config" /opt/NessusAPI
-    cp "$INSTALL_TEMPDIR/NessusAPI/*.py" /opt/NessusAPI/src/
+    cp -r "$INSTALL_TEMPDIR"/NessusAPI/configs /opt/NessusAPI
+    cp "$INSTALL_TEMPDIR"/NessusAPI/*.py /opt/NessusAPI/src/
     
+    # pip3 install --no-index --find-links "$INSTALL_TEMPDIR/install/python/oracle/" -r  "$INSTALL_TEMPDIR"/install/python/oracle/*
     # compile nessus-configure.py
-    cd /opt/NessusAPI/src
-    pyinstaller --onefile --distpath /opt/NessusAPI/bin --workpath /tmp --specpath /tmp
-    cd -
+    # cd /opt/NessusAPI/src
+    # pyinstaller --onefile --distpath /opt/NessusAPI/bin --workpath /tmp --specpath /tmp
+    # cd -
 
-    ln -s /opt/NessusAPI/bin/nessus-configure /usr/bin/nessus-configure
+    # ln -s /opt/NessusAPI/bin/nessus-configure /usr/bin/nessus-configure
+    ln -s /opt/NessusAPI/src/nessus-configure.py /usr/bin/nessus-configure
 }
 
 function install_scap_tools(){
@@ -86,23 +93,19 @@ if [ ! -f "TenableCore-Builder.tar.gz" ]; then
     exit 1
 fi
 
-NO_CLEAN=false
-INSTALL_TEMPDIR=""
-
 # Parse arguments
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --noclean) 
             NO_CLEAN=true ;;
-            ;;
         --temp-dir) 
             INSTALL_TEMPDIR="$2"; 
             shift
             ;;
-        --help|-h)
+        --help)
             usage
             ;;
-        *) 
+        *)
             echo "ERROR: Unknown parameter passed: $1";
             usage 
             exit 1
@@ -113,7 +116,7 @@ done
 
 mkdir -p "$INSTALL_TEMPDIR"
 
-tar -xzvf -C "$INSTALL_TEMPDIR"
+tar -xzvf TenableCore-Builder.tar.gz -C "$INSTALL_TEMPDIR"
 
 install_rpms
 configure_nessus
@@ -122,6 +125,6 @@ install_notes
 install_api
 install_scap_tools
 
-if [ "$NO_CLEAN" = "false"]; then
-    rm -rf "$INSTALL_TEMPDIR"
+if [ "$NO_CLEAN" == "false"]; then
+    rm -rf "$INSTALL_TEMPDIR" TenableCore-Builder.tar.gz
 fi
