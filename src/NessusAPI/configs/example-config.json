@@ -1,0 +1,132 @@
+{
+    "server": {
+        "host": "127.0.0.1",
+        "port": 8834,
+
+        "credentials": {
+            "type": "password",
+            "username": "root",
+            "password": "MY PASSWORD"
+        }
+    },
+    "policies": [
+        {
+            "name": "EXAMPLE ScanPolicy",
+            "file": "./ScanPolicy.xml",
+            "credentials": {
+                "Host": {
+                    "Windows": [
+                        {
+                            "auth_method": "Password",
+                            "username": "a",
+                            "password": "1",
+                            "domain": ""
+                        }
+                    ],
+                    "SSH": [
+                        {
+                            "auth_method": "password",
+                            "username": "passw",
+                            "password": "password",
+                            "elevate_privileges_with": "Nothing",
+                            "custom_password_prompt": "",
+                            "target_priority_list": "1.2.3.4"
+                        },
+                        {
+                            "auth_method": "public key",
+                            "username": "root",
+                            "password": "The initial login password to grab the key. Not needed for local files.",
+                            "private_key": "1.2.3.4:/root/.ssh/id_rsa",
+                            "private_key_passphrase": "",
+                            "elevate_privileges_with": "Nothing",
+                            "target_priority_list": ""
+                        }
+                    ],
+                    "SNMPv3": [
+                        {
+                            "username": "admin",
+                            "port": 161,
+                            "security_level": "Authentication and privacy",
+                            "auth_algorithm": "SHA1",
+                            "auth_password": "qq",
+                            "privacy_algorithm": "AES",
+                            "privacy_password": "qq"
+                        },
+                        {
+                            "username": "admin2",
+                            "port": 161,
+                            "security_level": "Authentication and privacy",
+                            "auth_algorithm": "SHA1",
+                            "auth_password": "qq",
+                            "privacy_algorithm": "AES",
+                            "privacy_password": "qq"
+                        }
+                    ]
+                },
+                "Plaintext Authentication": {
+                    "SNMPv1/v2c": [
+                        {
+                            "community_string": "public"
+                        }
+                    ],
+                    "HTTP": [
+                        {
+                            "auth_method": "HTTP login form",
+                            "username": "httptest",
+                            "password": "httptestpassword",
+                            "login_page": "http://test.com",
+                            "login_submission_page": "/login.html",
+                            "login_params": "user=%USER%&pass=%PASS%",
+                            "auth_check_page": "/session.html",
+                            "auth_regex": "(REGEX)"
+                        }
+                    ],
+                    "telnet/rsh/rexec": [
+                        {
+                            "username": "admin",
+                            "password": "telnetpassw"
+                        }
+                    ],
+                    "FTP": [
+                        {
+                            "username": "admin",
+                            "password": "ftptest"
+                        }
+                    ]
+                },
+                "Database": {
+                    "Database": [
+                        {
+                            "type": "MySQL",
+                            "authtype": "Password",
+                            "username": "root",
+                            "password": "password",
+                            "port": 3306
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "scans": [
+        {
+            "name": "TEST",
+            "description": "",
+            "folder": "XXYYZZ",
+            "policy": "XXYYZZ EXAMPLE ScanPolicy",
+            "targets": [
+                "1.2.3.4"
+            ]
+        },
+        {
+            "name": "TEST",
+            "description": "",
+            "folder": "XXYYZZ",
+            "policy": "Host Discovery",
+            "targets": [
+                "1.2.3.4",
+                "5.6.7.8"
+            ]
+        }
+    ]
+}

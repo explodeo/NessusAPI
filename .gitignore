@@ -28,4 +28,4 @@
 # !./src/Notes/setup.md
 
 # only keep the example config JSON
-!./src/NessusAPI/configs/example-config.json.json
+!**example-config.json
