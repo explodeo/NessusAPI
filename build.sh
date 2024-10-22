@@ -44,7 +44,7 @@ function usage_all(){
     echo '  ./build.sh install TODO'
 }
 
-function build_tar_dist(){
+function build_tar_local_installer(){
     # The final TGZ and install script is outputted into the ./dist folder
     mkdir -p ./dist/installer
 
@@ -64,12 +64,6 @@ function build_tar_dist(){
 
         cp ./install/utils/tar*.rpm ./dist/installer
         cp ./install/utils/build_tenablecore.sh ./dist/installer
-}
-
-function build_vmdk(){
-    # build vm with base image option
-    # mkdir -p ./dist/vm
-    echo 'TODO: NOT IMPLEMENTED'    
 }
 
 function build_vm_dist(){
@@ -102,4 +96,4 @@ function build_vm_dist(){
 # esac
 
 
-build_tar_dist
+build_tar_local_installer
