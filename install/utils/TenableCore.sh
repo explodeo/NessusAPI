@@ -29,7 +29,7 @@ function usage_install(){
     echo '          [--name VM_NAME] [--cpus CPUS] [--ram RAMSIZE] [--vram VRAM]'
     echo '          [--start] [--untar] [-h|--help]'
     echo '  Required:'
-    echo '      VDISK: Path to the ACAS Virtual Disk Image or *.tar.gz (VHD/VDI/VMDK/)'
+    echo '      VDISK: Path to the ACAS Virtual Disk Image or *.tar.gz (VHD/VDI/VMDK)'
     echo '      INSTALL_PATH: Path to install Virtualbox VM'
     echo '      NW_ADAPTER: Network Adapter to bridge to (ex: eth0)'
     echo '  Optional:'

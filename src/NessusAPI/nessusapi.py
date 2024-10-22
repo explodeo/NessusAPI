@@ -6,6 +6,7 @@ from getpass import getuser, getpass
 from subprocess import run
 from typing import Optional
 from pprint import pprint
+
 def parse_config(file: str) -> dict:
     with open(file, encoding='utf=8') as file:
         return json.loads(file.read())
@@ -43,11 +44,9 @@ class NessusAPI():
         self.Nessus._deauthenticate()
 
     def __login_user_passwd(self, host: str, port: int, credentials: dict[str,str]) -> Nessus:
-        return Nessus(
-            url = f'https://{host}:{port}',
-            username = (getuser("Username: ") if credentials.get('username', '*') == "*" else credentials['username']),
-            password = (getpass("Password: ") if credentials.get('password', '*') == "*" else credentials['password'])
-        )
+        username = input('Username: ') if credentials.get('username', '*') == "*" else credentials['username']
+        password = getpass("Password: ") if credentials.get('password', '*') == "*" else credentials['password']
+        return Nessus(url = f'https://{host}:{port}', username=username, password=password)
 
     def __login_token(self, host: str, port: int, tokens: dict[str,str]) -> Nessus:
         raise NotImplementedError()
@@ -75,8 +74,13 @@ class NessusAPI():
     def list_folders(self) -> list[dict]:
         return self.Nessus.folders.list()
 
-    def list_scans(self, folder: Optional[int] = None) -> dict:
-        return self.Nessus.scans.list(folder)
+    def list_scans(self, folder_name: Optional[int] = None) -> dict:
+        scans = self.Nessus.scans.list()
+        if not folder_name:
+            return scans['scans']
+        else:
+            folder_id = {folder['name']:folder['id'] for folder in scans['folders']}[folder_name]
+            return self.Nessus.scans.list(folder_id)
 
     def list_policies(self) -> dict:
         return self.Nessus.policies.list()
@@ -150,14 +154,28 @@ class NessusAPI():
         self.add_credentials(imported_policy['uuid'], imported_policy_id, credentials)
         return imported_policy
     
-    def run_scan(scan_name: str, folder_name: Optional[str] = None) -> None:
-        pass
+    # def run_scan(scan_name: str, folder_name: Optional[str] = None) -> None:
+    #     pass
 
-    def run_all_scans() -> None:
-        pass
+    # def run_all_scans() -> None:
+    #     pass
 
-    def stop_scan(scan_name: str, folder_name: Optional[str] = None) -> None:
-        pass
+    # def stop_scan(scan_name: str, folder_name: Optional[str] = None) -> None:
+    #     pass
 
-    def stop_all_scans() -> None:
-        pass
+    # def stop_all_scans() -> None:
+    #     pass
+
+    def export_scan(self, scan_id: int, outfile: str):
+        with open(outfile, 'wb') as file:
+            self.Nessus.scans.export_scan(scan_id, fobj=file)
+
+    def export_all_scans(self, outdir: str, scan_folder: str = None):
+        if not os.path.exists(outdir):
+            os.mkdir(outdir, mode=755)
+        if not  os.path.isdir(outdir):
+            raise OSError(f"Cannot use '{outdir}' to store scans")
+        
+        for scan in self.list_scans(scan_folder):
+            if scan['status'] == "completed":
+                self.export_scan(scan['id'], outfile=os.path.join(outdir, f"{scan['name']}.nessus"))

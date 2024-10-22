@@ -6,7 +6,7 @@ set -e
 
 # Global Vars
 NO_CLEAN=
-INSTALL_TEMPDIR=_ACAS_OS_INSTALL
+export INSTALL_TEMPDIR=_ACAS_OS_INSTALL
 
 function usage(){
     echo ''
@@ -30,12 +30,17 @@ function configure_nessus(){
     # need to wait till nessus is fully up here?
     nessuscli adduser || true
 
-    # run ns-conf.sh
+    # reset nessus to use SecurityCenter
+    systemctl stop nessusd || true
+    nessuscli fix --reset
+    nessuscli fetch --security-center
+
     # echo "Reconfiguring Nessus to ACAS. Please Wait"
     /opt/acas/bin/config-scripts/ns-conf.sh
-    # sleep 30
-    # kill -9 $(pgrep ns-conf.sh) 2>/dev/null
-    # echo "Done"
+
+    # start nessus
+    systemctl start nessusd || true
+
 }
 
 function configure_networking(){
@@ -62,8 +67,7 @@ function install_notes(){
 function install_api(){
     # install pip packages (includes pyinstaller)
     su acasuser bash -c 'python -m ensurepip'
-    python -m ensurepip
-    pip3 install --no-index --find-links "$INSTALL_TEMPDIR/install/python/oracle/" -r  "$INSTALL_TEMPDIR/NessusAPI/requirements.txt"
+    sudo -Eu acasuser bash -c '/home/acasuser/.local/bin/pip3 install --no-index --find-links "$INSTALL_TEMPDIR/install/python/oracle/" -r  "$INSTALL_TEMPDIR/NessusAPI/requirements.txt"'
     
     # install nessus-configure src and configs
     mkdir -p /opt/NessusAPI/{bin,src}
