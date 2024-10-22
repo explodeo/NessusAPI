@@ -3,7 +3,6 @@
 import code
 import argparse
 import os
-from sys import argv
 from nessusapi import NessusAPI
 
 if __name__ == "__main__":

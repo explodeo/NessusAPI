@@ -17,14 +17,18 @@ function usage(){
 }
 
 function install_rpms(){
-    rpm -i "$INSTALL_TEMPDIR/install/rpms/CM307352_Nessus-10.7.3-el8.x86_64.rpm" || true
-    rpm -i "$INSTALL_TEMPDIR/install/rpms/dialog-1.3-32.20210117.el9.x86_64.rpm" || true
-    rpm -i "$INSTALL_TEMPDIR/install/rpms/CM306733_acas_configure-24.03-4.noarch.rpm" || true
+    # install java first per https://docs.tenable.com/nessus/Content/SoftwareRequirements.htm
+    rpm -ivh "$INSTALL_TEMPDIR/install/rpms/jdk-11/*.rpm" || true
+    rpm -i "$INSTALL_TEMPDIR/install/rpms/acas/CM307352_Nessus-10.7.3-el8.x86_64.rpm" || true
+    rpm -i "$INSTALL_TEMPDIR/install/rpms/acas/dialog-1.3-32.20210117.el9.x86_64.rpm" || true
+    rpm -i "$INSTALL_TEMPDIR/install/rpms/acas/CM306733_acas_configure-24.03-4.noarch.rpm" || true
 }
 
 function configure_nessus(){
     systemctl start nessusd || true
     ln -s /opt/nessus/sbin/nessuscli /usr/sbin/nessuscli || true
+    ln -s /opt/nessus/sbin/nessusd /usr/sbin/nessusd || true
+
 
     echo "Creating Nessus User Account"
     # need to wait till nessus is fully up here?
@@ -32,6 +36,7 @@ function configure_nessus(){
 
     # reset nessus to use SecurityCenter
     systemctl stop nessusd || true
+    nessuscli fix --set path_to_java=/bin/java
     nessuscli fix --reset
     nessuscli fetch --security-center
 
@@ -137,5 +142,5 @@ install_scap_tools
 echo "Nessus Install Completed"
 
 if [ -z "$NO_CLEAN" ]; then
-    rm -rf "$INSTALL_TEMPDIR" TenableCore-Builder.tar.gz tar-1.34-6.el9_4.1.x86_64.rpm 
+    rm -rf "$INSTALL_TEMPDIR" TenableCore-Builder.tar.gz tar-1.34-6.el9_4.1.x86_64.rpm build_tenablecore.sh
 fi

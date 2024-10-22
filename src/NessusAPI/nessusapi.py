@@ -170,12 +170,21 @@ class NessusAPI():
         with open(outfile, 'wb') as file:
             self.Nessus.scans.export_scan(scan_id, fobj=file)
 
-    def export_all_scans(self, outdir: str, scan_folder: str = None):
+    def export_all_scans(self, outdir: str, scan_folder: str = None, export_formats: list[str] = ['nessus']):
+        # nessus.scans.export_scan(id, format=pdf, template_id=49) #DVL by plugin
+        # nessus.scans.export_scan(id, format=pdf, template_id=48) #DVL by host w/remediation
+        # nessus.scans.export_scan(id, format=pdf, template_id=47) #DVL by host
+        # nessus.scans.export_scan(id, format=pdf, template_id=46) #DVL by host w/remediation
+        # nessus.scans.export_scan(id, format=csv) # BUG: does not export with all columns
         if not os.path.exists(outdir):
             os.mkdir(outdir, mode=755)
         if not  os.path.isdir(outdir):
             raise OSError(f"Cannot use '{outdir}' to store scans")
         
         for scan in self.list_scans(scan_folder):
-            if scan['status'] == "completed":
-                self.export_scan(scan['id'], outfile=os.path.join(outdir, f"{scan['name']}.nessus"))
+            if scan['status'] in "completed imported":
+                if 'nessus' in export_formats:
+                    self.export_scan(scan['id'], outfile=os.path.join(outdir, f"{scan['name']}.nessus"))
+                if 'pdf' in export_formats:
+                    self.export_scan(scan['id'], outfile=os.path.join(outdir, f"{scan['name']}_dvl_by_host.pdf"), format='pdf', template_id=48)
+                    self.export_scan(scan['id'], outfile=os.path.join(outdir, f"{scan['name']}_dvl_by_plugin.pdf"), format='pdf', template_id=46)
