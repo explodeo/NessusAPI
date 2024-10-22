@@ -17,14 +17,14 @@ function usage(){
 }
 
 function install_rpms(){
-    rpm -i "$INSTALL_TEMPDIR/install/rpms/CM307352_Nessus-10.7.3-el8.x86_64.rpm"
-    rpm -i "$INSTALL_TEMPDIR/install/rpms/dialog-1.3-32.20210117.el9.x86_64.rpm"
-    rpm -i "$INSTALL_TEMPDIR/install/rpms/CM306733_acas_configure-24.03-4.noarch.rpm"
+    rpm -i "$INSTALL_TEMPDIR/install/rpms/CM307352_Nessus-10.7.3-el8.x86_64.rpm" || true
+    rpm -i "$INSTALL_TEMPDIR/install/rpms/dialog-1.3-32.20210117.el9.x86_64.rpm" || true
+    rpm -i "$INSTALL_TEMPDIR/install/rpms/CM306733_acas_configure-24.03-4.noarch.rpm" || true
 }
 
 function configure_nessus(){
-    systemctl start nessusd
-    ln -s /opt/nessus/sbin/nessuscli /usr/sbin/nessuscli
+    systemctl start nessusd || true
+    ln -s /opt/nessus/sbin/nessuscli /usr/sbin/nessuscli || true
 
     echo "Creating Nessus User Account"
     # need to wait till nessus is fully up here?
@@ -40,7 +40,7 @@ function configure_nessus(){
 
 function configure_networking(){
     # turn off firewalld
-    systemctl disable --now firewalld
+    systemctl disable --now firewalld || true
 
     # install NetworkManager profiles
     cp "$INSTALL_TEMPDIR"/TenableCore/NetworkManager/*.nmconnection /etc/NetworkManager/system-connections/
@@ -50,9 +50,9 @@ function configure_networking(){
     # install networkctl
     cp "$INSTALL_TEMPDIR/TenableCore/NetworkManager/networkctl.sh" /opt
     chmod 755 /opt/networkctl.sh
-    systemctl restart NetworkManager
+    systemctl restart NetworkManager || true
     
-    ln -s /opt/networkctl.sh /usr/bin/networkctl
+    ln -s /opt/networkctl.sh /usr/bin/networkctl || true
 }
 
 function install_notes(){
@@ -61,7 +61,8 @@ function install_notes(){
 
 function install_api(){
     # install pip packages (includes pyinstaller)
-    python -m ensurepip -U
+    su acasuser bash -c 'python -m ensurepip'
+    python -m ensurepip
     pip3 install --no-index --find-links "$INSTALL_TEMPDIR/install/python/oracle/" -r  "$INSTALL_TEMPDIR/NessusAPI/requirements.txt"
     
     # install nessus-configure src and configs
@@ -76,7 +77,7 @@ function install_api(){
     # cd -
 
     # ln -s /opt/NessusAPI/bin/nessus-configure /usr/bin/nessus-configure
-    ln -s /opt/NessusAPI/src/nessus-configure.py /usr/bin/nessus-configure
+    ln -s /opt/NessusAPI/src/nessus-configure.py /usr/bin/nessus-configure || true
 }
 
 function install_scap_tools(){

@@ -34,6 +34,46 @@ A small utility script that wraps `nmcli` to clear, list, and load network profi
 The main benefit here is `networkctl load PROFILE` will load all profiles starting with `PROFILE` -- a useful utility for loading an interface and all its VLANs simultaneously. 
 
 ***
+
+## Build Process
+
+This is currently in process to be **fully** automated
+
+Recreate distribution files and `scp` them to the VM:
+```sh
+$ ./build.sh
+$ scp ./dist/installer/* root@192.168.56.101:/tmp
+```
+
+Log into the VM and install/configure ACAS:
+```sh
+$ su root
+# cd /tmp
+# chmod 700 ./build_tenablecore.sh
+# ./build_tenablecore.sh
+```
+
+Watch the prompts in the output to:
+- Create and administrative Nessus account
+- Set your ACAS classification and other options
+- Set 'Enable XML Plugin Attributes' to yes
+- exit the nessus configuration script
+
+You can install plugins at this point, load additional configs into `/opt/NessusAPI/configs`, or shut down. </br>
+To load plugins, run: `nessuscli update <plugins.tar.gz>`
+
+Remove the build script:
+```sh
+# rm /tmp/build_tenablecore.sh
+```
+
+Once complete, copy the VM virtual disk into `./dist/vm/`. Pack this entire folder to make the portable installation. </br>
+You can compress the VM and copy the archive instead using this example: 
+```sh
+$ tar -czvf ./dist/vm/TenableCore.tar.gz -C "~/VirtualBox VMs/TenableCore" TenableCore.vmdk
+```
+
+***
 ***
 
 **Side Note:** *I should **probably** rename this to ACAS-API since it's more fitting and I don't want to get sued by Tenable*

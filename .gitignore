@@ -1,3 +1,4 @@
+**/__pycache__
 
 # ignore built TGZs and config files
 **/dist/*
@@ -23,6 +24,14 @@
 # Ignore system-specific notes
 **/Notes
 **/notes
+
+# Ignore compiled virtual disks
+**.vmdk
+**.vhd
+**.vdi
+
+# ignore distribution
+**/dist
 
 # only keep setup notes
 # !./src/Notes/setup.md
