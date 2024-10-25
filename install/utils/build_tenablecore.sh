@@ -22,6 +22,8 @@ function install_rpms(){
     rpm -i "$INSTALL_TEMPDIR/install/rpms/acas/CM307352_Nessus-10.7.3-el8.x86_64.rpm" || true
     rpm -i "$INSTALL_TEMPDIR/install/rpms/acas/dialog-1.3-32.20210117.el9.x86_64.rpm" || true
     rpm -i "$INSTALL_TEMPDIR/install/rpms/acas/CM306733_acas_configure-24.03-4.noarch.rpm" || true
+    # install rpm extras
+    rpm -ivh "$INSTALL_TEMPDIR/install/rpms/jdk-11/*.rpm" || true
 }
 
 function configure_nessus(){
@@ -60,9 +62,7 @@ function configure_networking(){
     # install networkctl
     cp "$INSTALL_TEMPDIR/TenableCore/NetworkManager/networkctl.sh" /opt
     chmod 755 /opt/networkctl.sh
-    systemctl restart NetworkManager || true
-    
-    ln -s /opt/networkctl.sh /usr/bin/networkctl || true
+    systemctl restart NetworkManager || true    
 }
 
 function install_notes(){
@@ -84,14 +84,21 @@ function install_api(){
     # cd /opt/NessusAPI/src
     # pyinstaller --onefile --distpath /opt/NessusAPI/bin --workpath /tmp --specpath /tmp
     # cd -
-
     # ln -s /opt/NessusAPI/bin/nessus-configure /usr/bin/nessus-configure
+
     ln -s /opt/NessusAPI/src/nessus-configure.py /usr/bin/nessus-configure || true
+    ln -s /opt/NessusAPI/src/nessus-update-policy.py /usr/bin/nessus-update-policy || true
 }
 
-function install_scap_tools(){
-    # TODO
-    echo "TODO: Install SCAP Automation Tools"
+function install_utility_scripts(){
+    cp -r "$INSTALL_TEMPDIR"/TenableCore/scripts /opt/
+    # force ownership and permissions
+    chmod 755 /opt/scripts/*
+    chown -R root:root /opt/scripts/*
+    # symlink only bins so all users can see it
+    ln -s /opt/scripts/bin/* /usr/bin/
+    # other scripts get stored here
+
 }
 
 ####################### Main #######################
@@ -137,7 +144,6 @@ configure_nessus
 configure_networking
 install_notes
 install_api
-install_scap_tools
 
 echo "Nessus Install Completed"
 

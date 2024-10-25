@@ -36,5 +36,8 @@
 # only keep setup notes
 # !./src/Notes/setup.md
 
+# ignore system-specific SCAP data
+**/SCAP/*
+
 # only keep the example config JSON
 !**example-config.json

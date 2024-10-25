@@ -179,7 +179,7 @@ class NessusAPI():
         if not os.path.exists(outdir):
             os.mkdir(outdir, mode=755)
         if not  os.path.isdir(outdir):
-            raise OSError(f"Cannot use '{outdir}' to store scans")
+            raise FileExistsError(f"Cannot use '{outdir}' to store scans")
         
         for scan in self.list_scans(scan_folder):
             if scan['status'] in "completed imported":
