@@ -17,13 +17,9 @@ function usage(){
 }
 
 function install_rpms(){
-    # install java first per https://docs.tenable.com/nessus/Content/SoftwareRequirements.htm
-    rpm -ivh "$INSTALL_TEMPDIR/install/rpms/java/*.rpm" || true
-    rpm -i "$INSTALL_TEMPDIR/install/rpms/acas/CM307352_Nessus-10.7.3-el8.x86_64.rpm" || true
-    rpm -i "$INSTALL_TEMPDIR/install/rpms/acas/dialog-1.3-32.20210117.el9.x86_64.rpm" || true
-    rpm -i "$INSTALL_TEMPDIR/install/rpms/acas/CM306733_acas_configure-24.03-4.noarch.rpm" || true
+    yum install -y java nessus nmap cdrecord mkisofs tar
     # install rpm extras
-    rpm -ivh "$INSTALL_TEMPDIR/install/rpms/extras/*.rpm" || true
+    rpm -ivh "$INSTALL_TEMPDIR/install/rpms/jdk-11/*.rpm" || true
 }
 
 function configure_nessus(){
@@ -41,9 +37,6 @@ function configure_nessus(){
     nessuscli fix --set path_to_java=/bin/java
     nessuscli fix --reset
     nessuscli fetch --security-center
-
-    # echo "Reconfiguring Nessus to ACAS. Please Wait"
-    /opt/acas/bin/config-scripts/ns-conf.sh
 
     # start nessus
     systemctl start nessusd || true
@@ -79,13 +72,6 @@ function install_api(){
     cp -r "$INSTALL_TEMPDIR"/NessusAPI/configs /opt/NessusAPI
     cp "$INSTALL_TEMPDIR"/NessusAPI/*.py /opt/NessusAPI/src/
     
-    # pip3 install --no-index --find-links "$INSTALL_TEMPDIR/install/python/oracle/" -r  "$INSTALL_TEMPDIR"/install/python/oracle/*
-    # compile nessus-configure.py
-    # cd /opt/NessusAPI/src
-    # pyinstaller --onefile --distpath /opt/NessusAPI/bin --workpath /tmp --specpath /tmp
-    # cd -
-    # ln -s /opt/NessusAPI/bin/nessus-configure /usr/bin/nessus-configure
-
     ln -s /opt/NessusAPI/src/nessus-configure.py /usr/bin/nessus-configure || true
     ln -s /opt/NessusAPI/src/nessus-update-policy.py /usr/bin/nessus-update-policy || true
 }
@@ -133,13 +119,10 @@ done
 
 mkdir -p "$INSTALL_TEMPDIR"
 
-if ! command -v tar &> /dev/null; then
-   rpm -i tar-1.34-6.el9_4.1.x86_64.rpm
-fi
+install_rpms
 
 tar -xzvf TenableCore-Builder.tar.gz -C "$INSTALL_TEMPDIR"
 
-install_rpms
 configure_nessus
 configure_networking
 install_notes
@@ -148,5 +131,5 @@ install_api
 echo "Nessus Install Completed"
 
 if [ -z "$NO_CLEAN" ]; then
-    rm -rf "$INSTALL_TEMPDIR" TenableCore-Builder.tar.gz tar-1.34-6.el9_4.1.x86_64.rpm build_tenablecore.sh build_tenablecore_oracle7.sh
+    rm -rf "$INSTALL_TEMPDIR" TenableCore-Builder.tar.gz build_tenablecore.sh build_tenablecore_oracle7.sh
 fi
