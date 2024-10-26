@@ -59,9 +59,6 @@ function configure_networking(){
     chmod 600 /etc/NetworkManager/system-connections/*.nmconnection
     chown root:root /etc/NetworkManager/system-connections/*.nmconnection
     
-    # install networkctl
-    cp "$INSTALL_TEMPDIR/TenableCore/NetworkManager/networkctl.sh" /opt
-    chmod 755 /opt/networkctl.sh
     systemctl restart NetworkManager || true    
 }
 
@@ -87,7 +84,7 @@ function install_api(){
     # ln -s /opt/NessusAPI/bin/nessus-configure /usr/bin/nessus-configure
 
     ln -s /opt/NessusAPI/src/nessus-configure.py /usr/bin/nessus-configure || true
-    ln -s /opt/NessusAPI/src/nessus-update-policy.py /usr/bin/nessus-update-policy || true
+    ln -s /opt/NessusAPI/src/nessus-policy-update.py /usr/bin/nessus-policy-update || true
 }
 
 function install_utility_scripts(){
@@ -142,6 +139,7 @@ tar -xzvf TenableCore-Builder.tar.gz -C "$INSTALL_TEMPDIR"
 install_rpms
 configure_nessus
 configure_networking
+install_utility_scripts
 install_notes
 install_api
 

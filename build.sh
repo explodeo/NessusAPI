@@ -60,10 +60,11 @@ function build_tar_local_installer(){
         --exclude='*.exe' \
         --exclude='*.iso' \
         --exclude='*/install/build_tenablecore.sh' \
-        -C src NessusAPI SCAP TenableCore Notes -C .. install
+        -C src NessusAPI TenableCore Notes -C .. install
 
         cp ./install/utils/tar*.rpm ./dist/installer
         cp ./install/utils/build_tenablecore*.sh ./dist/installer
+        cp -r ./src/SCAP/ ./dist/installer
 }
 
 function build_vm_dist(){

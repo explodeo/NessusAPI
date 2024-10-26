@@ -8,7 +8,7 @@ from typing import Optional
 from pprint import pprint
 
 def parse_config(file: str) -> dict:
-    with open(file, encoding='utf=8') as file:
+    with open(file, encoding='utf-8') as file:
         return json.loads(file.read())
 
 class NessusAPI():
