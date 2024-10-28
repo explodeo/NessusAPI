@@ -68,8 +68,8 @@ function install_notes(){
 
 function install_api(){
     # install pip packages (includes pyinstaller)
-    su acasuser bash -c 'python -m ensurepip'
-    sudo -Eu acasuser bash -c '/home/acasuser/.local/bin/pip3 install --no-index --find-links "$INSTALL_TEMPDIR/install/python/oracle/" -r  "$INSTALL_TEMPDIR/NessusAPI/requirements.txt"'
+    su acasuser bash -c 'python3 -m ensurepip'
+    sudo -Eu acasuser bash -c '/home/acasuser/.local/bin/pip3 install --no-index --find-links "$INSTALL_TEMPDIR/install/python/oracle/" "$INSTALL_TEMPDIR/install/python/oracle/"*'
     
     # install nessus-configure src and configs
     mkdir -p /opt/NessusAPI/{bin,src}
@@ -129,6 +129,7 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 mkdir -p "$INSTALL_TEMPDIR"
+# INSTALL_TEMPDIR=`realpath "$INSTALL_TEMPDIR"`
 
 if ! command -v tar &> /dev/null; then
    rpm -i tar-1.34-6.el9_4.1.x86_64.rpm

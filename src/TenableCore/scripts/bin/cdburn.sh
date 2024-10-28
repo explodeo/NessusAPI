@@ -15,7 +15,7 @@ TEMP_DIR=$(mktemp -d)
 ISO_IMAGE="$TEMP_DIR/image.iso"
 
 # Create the ISO image from the provided files and directories
-mkisofs -o "$ISO_IMAGE" -J -R "$@"
+mkisofs -file-mode 777 -o "$ISO_IMAGE" -J -R "$@"
 
 # Check if mkisofs succeeded
 if [ $? -ne 0 ]; then

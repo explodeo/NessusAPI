@@ -37,7 +37,8 @@ def parse_args(argv: list[str]) -> dict:
         epilog=textwrap.dedent('''COMMAND:
     setpasswords:    Set credentials for a scan policy
     configureserver: Set server connection settings
-    setscanpolicy:   Set path to the Nessus scan policy XML''')
+    setscanpolicy:   Set path to the Nessus scan policy XML
+    ''')
     )
     parser.add_argument("config", metavar="CONFIG", help="NessusAPI Policy JSON config")
     parser.add_argument("--policies", metavar="POLCYNAME", nargs='*', default=['*'], help="Choose a specific policy to update in the JSON config (default=*)")
@@ -65,8 +66,6 @@ def parse_args(argv: list[str]) -> dict:
     remaining_args = argv
     while len(remaining_args) > 0:
         parseable_args, remaining_args = _split_args(remaining_args, commands)
-        print(parseable_args)
-        print(remaining_args)
         if len(parseable_args) == 0:
             raise ArgumentError(None, f'Unknown argument: "{remaining_args[0]}"')
         if parseable_args[0] not in commands:
